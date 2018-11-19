@@ -1,0 +1,84 @@
+void setup(){
+  //pinMode(LED, OUTPUT);
+  setOledDisplay();
+  //flashLed(300);
+  Serial.begin(9600);
+  initializeBluetooth();
+  initializeServos();
+  initializeDistanceSensors();
+  delay(2000);
+  setDefaulRoboticArmPosition();
+}
+
+void initializeBluetooth(){
+  HC05.begin(9600);
+  HC05.setTimeout(10);
+}
+
+void initializeServos(){
+  Serial.write("\nServo test\n"); 
+  servoBase.attach(BASE_PWM_PIN);
+  servoShoulder.attach(SHOULDER_PWM_PIN);
+  servoElbow.attach(ELBOW_PWM_PIN);
+  //servoGrip.attach(11);
+  
+}
+
+void initializeDistanceSensors(){
+  detectionThreshold = 380; //400 can be changed as needed ;)
+  distanceSensorRight = 0;
+  distanceSensorFront = 0;
+  distanceSensorLeft = 0; 
+}
+
+void setDefaulRoboticArmPosition(){
+  //setServoBasePosition(DEFAULT_SERVO_ANGLE);
+  setServo(1, DEFAULT_SERVO_ANGLE);
+  setServo(2, DEFAULT_SERVO_ANGLE);
+  setServo(3, DEFAULT_SERVO_ANGLE);
+  setServo(4, DEFAULT_SERVO_ANGLE);
+  
+  //gripperControl('c', 74);
+  servoBase_val = servoBase.read();
+  servoShoulder_val = servoShoulder.read();
+  servoElbow_val = servoElbow.read();
+  currentRoboticArmState = 0;
+}
+
+void setGrippingRoboticArmPosition(){
+  if(currentRoboticArmState!=1){
+    setServo(2, 155);
+    setServo(3, 75);
+    gripperControl('o', 10);
+    gripperControl('o', 10);
+    servoShoulder_val = servoShoulder.read();
+    servoElbow_val = servoElbow.read();
+    currentRoboticArmState=1;
+  }
+}
+
+void setObstacleSearchingRoboticArmPosition(){
+  if(currentRoboticArmState!=2){
+    gripperControl('c', 55);
+    gripperControl('c', 55);
+    setServo(5, 90); // Shoulder
+    setServo(6, 55);  // Elbow
+    servoShoulder_val = servoShoulder.read();
+    servoElbow_val = servoElbow.read();
+    currentRoboticArmState=2;
+  }
+}
+
+void setOledDisplay(){
+    // Set up the display
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // Initialize with the I2C addr 0x3D if not working use 0x3C (for the 128x64)
+  //display.setTextColor(WHITE);
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(25,0);
+  display.println("instructables");
+  display.println();
+  display.display();
+  //delay(2000);
+}
